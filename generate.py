@@ -1,38 +1,45 @@
 import os
+import subprocess
 
-def generate_melodic_beat(output_path):
-    print("🎹 Rendering V30.1: Fixed Melody Syntax & Phrygian Scale...")
+def generate_real_trap(output_path):
+    print("🔥 Rendering V36.1: Escaping Shell Characters & Fixing 808s...")
     
-    # 1. Dark Melody: C4(261) -> Db4(277) -> G3(195)
-    # Removed spaces and used escaped quotes for ffmpeg stability
-    melody = "aevalsrc='0.15*sin(2*PI*261.63*t)*between(t,0,0.5)+0.15*sin(2*PI*277.18*t)*between(t,1,1.5)+0.12*sin(2*PI*195.99*t)*between(t,2,3.5)':d=4"
+    # 1. Gritty 808 with sliding frequency
+    bass = "aevalsrc='0.6*sin(2*PI*(60-5*t)*t)':d=0.5,lowpass=f=120,acrusher=level_in=1:level_out=1:bits=8:mode=log,volume=15dB"
     
-    # 2. Foundation
-    bass = "sine=f=440:d=0.3,asetrate=6000,aresample=44100,volume=18dB"
-    hats = 'sine=f=8000:d=0.01,volume=1dB'
-    clap = 'anoisesrc=d=0.1:c=white,highpass=f=1000,volume=15dB'
+    # 2. Dark Piano (C# -> D)
+    piano = "aevalsrc='(0.2*sin(2*PI*277*t)+0.1*sin(2*PI*554*t))*exp(-2*t)*between(t,0,2)+(0.2*sin(2*PI*293*t)+0.1*sin(2*PI*587*t))*exp(-2*(t-2))*between(t,2,4)':d=4"
     
-    # 3. Mixing Logic
+    # 3. Percussion
+    hats = "anoisesrc=d=0.01:c=white,highpass=f=8000,volume=2dB"
+    clap = "anoisesrc=d=0.08:c=white,bandpass=f=1200:width_type=h:width=500,volume=18dB"
+    
+    # 4. Arrangement Logic
     filter_str = (
-        "[0:a]aloop=loop=30:size=1.0*44100,volume=0.2[h]; "
-        "[1:a]aloop=loop=15:size=2.0*44100,volume=2.2[b]; "
-        "[2:a]aloop=loop=7:size=4.0*44100,adelay=2000|2000,volume=1.8[c]; "
-        "[3:a]aloop=loop=7:size=4.0*44100,volume=1.0,aecho=0.8:0.88:40:0.4[m]; "
-        "[h][b][c][m]amix=inputs=4:duration=first"
+        "[0:a]aloop=loop=60:size=0.42*44100,volume=0.3[h]; "
+        "[1:a]aloop=loop=15:size=1.71*44100,volume=2.5[b]; "
+        "[2:a]aloop=loop=7:size=3.42*44100,adelay=1710|1710,volume=2.0[c]; "
+        "[3:a]aloop=loop=7:size=3.42*44100,volume=2.5,aecho=0.8:0.9:60:0.4[p]; "
+        "[h][b][c][p]amix=inputs=4:duration=first,highpass=f=40,lowpass=f=15000"
     )
     
-    cmd = (
-        f"ffmpeg -hide_banner -loglevel error "
-        f"-f lavfi -i '{hats}' -f lavfi -i '{bass}' -f lavfi -i '{clap}' -f lavfi -i \"{melody}\" "
-        f"-filter_complex \"{filter_str}\" "
-        f"'{output_path}' -y"
-    )
-    os.system(cmd)
+    # Using subprocess.run for safer shell execution on iMac
+    cmd = [
+        "ffmpeg", "-hide_banner", "-loglevel", "error",
+        "-f", "lavfi", "-i", hats,
+        "-f", "lavfi", "-i", bass,
+        "-f", "lavfi", "-i", clap,
+        "-f", "lavfi", "-i", piano,
+        "-filter_complex", filter_str,
+        output_path, "-y"
+    ]
+    
+    subprocess.run(cmd)
 
 if __name__ == '__main__':
-    output_path = "/Volumes/12121231/heartmula/outputs/HeartMuLa_V30_1.mp3"
+    output_path = "/Volumes/12121231/heartmula/outputs/HeartMuLa_V36_1.mp3"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    generate_melodic_beat(output_path)
+    generate_real_trap(output_path)
     if os.path.exists(output_path):
-        print("--- Playing: HeartMuLa_V30.1 (Melodic Fixed) ---")
+        print("--- Playing: HeartMuLa_V36.1 (No Shell Errors) ---")
         os.system(f"afplay '{output_path}'")
