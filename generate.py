@@ -1,47 +1,41 @@
-import argparse
 import os
 
-def generate_full_beat(output_path):
-    print("🔥 Rendering Ultra-Aggressive 808 (Distortion Level: MAX)...")
+def generate_melodic_beat(output_path):
+    print("🔥 Rendering Balanced Trap + Soft Melody...")
     
-    # 1. The "Speaker-Rattler" 808
-    # Using 'aecho' and 'alimiter' to create a massive, distorted wall of bass
-    bass = 'sine=f="exp(-t)*20+70":d=2,aecho=0.8:0.88:60:0.5,alimiter=level_in=20:level_out=1:limit=0.1,volume=25dB'
+    # 1. Balanced 808 (90Hz)
+    bass = 'sine=f=90:d=2,volume=5dB'
     
-    # 2. The Hi-Hat Triplets
-    hats = 'anoisesrc=d=2:c=white,tremolo=f=12:d=0.9,volume=5dB'
+    # 2. Clean Snares
+    snare1 = 'anoisesrc=d=0.1:c=white,volume=8dB,adelay=500|500'
+    snare2 = 'anoisesrc=d=0.1:c=white,volume=8dB,adelay=1500|1500'
     
-    # 3. The Snare
-    snare = 'anoisesrc=d=0.1:c=white,volume=15dB,adelay=500|500;anoisesrc=d=0.1:c=white,volume=15dB,adelay=1500|1500'
+    # 3. Soft Melody (Lowered volume and higher pitch for clarity)
+    # Notes: A, B, C, D (440Hz, 493Hz, 523Hz, 587Hz)
+    m1 = 'sine=f=440:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=0|0,volume=3dB'
+    m2 = 'sine=f=493:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=250|250,volume=3dB'
+    m3 = 'sine=f=523:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=1000|1000,volume=3dB'
+    m4 = 'sine=f=587:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=1250|1250,volume=3dB'
     
-    # 4. The Melody
-    n1 = 'sine=f=440:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=0|0'
-    n2 = 'sine=f=466:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=250|250'
-    n3 = 'sine=f=349:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=1000|1000'
-    n4 = 'sine=f=329:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=1250|1250'
+    # Mix: Bass(0), Snare1(1), Snare2(2), Melodies(3,4,5,6)
+    filter_str = '[3][4][5][6]amix=inputs=4[mel]; [0][1][2][mel]amix=inputs=4'
     
     cmd = (
-        f'ffmpeg -hide_banner -loglevel error '
-        f'-f lavfi -i "{bass}" '
-        f'-f lavfi -i "{hats}" '
-        f'-f lavfi -i "{snare}" '
-        f'-f lavfi -i "{n1}" -f lavfi -i "{n2}" -f lavfi -i "{n3}" -f lavfi -i "{n4}" '
-        f'-filter_complex "[3][4][5][6]amix=inputs=4,aecho=0.8:0.88:60:0.4[mel]; [0][1][2][mel]amix=inputs=4" '
-        f'"{output_path}" -y'
+        f"ffmpeg -hide_banner -loglevel error "
+        f"-f lavfi -i '{bass}' "
+        f"-f lavfi -i '{snare1}' "
+        f"-f lavfi -i '{snare2}' "
+        f"-f lavfi -i '{m1}' -f lavfi -i '{m2}' -f lavfi -i '{m3}' -f lavfi -i '{m4}' "
+        f"-filter_complex '{filter_str}' "
+        f"'{output_path}' -y"
     )
     os.system(cmd)
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--style', type=str, default='Aggressive Trap')
-    args = parser.parse_args()
-
-    output_audio = f"{args.style.replace(' ', '_')}_Beat.mp3"
-    output_path = f"/Volumes/12121231/heartmula/outputs/{output_audio}"
-    
+if __name__ == '__main__':
+    output_path = "/Volumes/12121231/heartmula/outputs/Melodic_Beat.mp3"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    generate_full_beat(output_path)
+    generate_melodic_beat(output_path)
     
     if os.path.exists(output_path):
-        print(f"--- Playing: {output_audio} ---")
+        print(f"--- Playing: Melodic_Beat.mp3 ---")
         os.system(f"afplay '{output_path}'")
