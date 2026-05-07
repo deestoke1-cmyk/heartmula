@@ -2,22 +2,22 @@ import argparse
 import os
 
 def generate_full_beat(output_path):
-    print("🔥 Rendering Atmospheric Trap Beat (808 + Hats + Snare + Melody)...")
+    print("🔥 Rendering Spacey Trap Beat (808 + Hats + Snare + Reverb Melody)...")
     
     # 1. The Heavy 808
-    bass = 'sine=frequency=45:duration=1,volume=20dB'
+    bass = 'sine=frequency=45:duration=2,volume=20dB'
     
     # 2. The Hi-Hat Triplets
-    hats = 'anoisesrc=d=1:c=white,tremolo=f=12:d=0.9,volume=5dB'
+    hats = 'anoisesrc=d=2:c=white,tremolo=f=12:d=0.9,volume=5dB'
     
-    # 3. The Snare
-    snare = 'anoisesrc=d=0.1:c=white,volume=15dB,adelay=500|500'
+    # 3. The Snare (Hits at 0.5s and 1.5s)
+    snare = 'anoisesrc=d=0.1:c=white,volume=15dB,adelay=500|500;anoisesrc=d=0.1:c=white,volume=15dB,adelay=1500|1500'
     
-    # 4. The Melody (4 separate plucky notes)
+    # 4. The Melody (4 notes)
     n1 = 'sine=f=440:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=0|0'
     n2 = 'sine=f=466:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=250|250'
-    n3 = 'sine=f=349:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=500|500'
-    n4 = 'sine=f=329:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=750|750'
+    n3 = 'sine=f=349:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=1000|1000'
+    n4 = 'sine=f=329:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=1250|1250'
     
     cmd = (
         f'ffmpeg -hide_banner -loglevel error '
@@ -25,7 +25,7 @@ def generate_full_beat(output_path):
         f'-f lavfi -i "{hats}" '
         f'-f lavfi -i "{snare}" '
         f'-f lavfi -i "{n1}" -f lavfi -i "{n2}" -f lavfi -i "{n3}" -f lavfi -i "{n4}" '
-        f'-filter_complex "amix=inputs=7" '
+        f'-filter_complex "[3][4][5][6]amix=inputs=4,aecho=0.8:0.88:60:0.4[mel]; [0][1][2][mel]amix=inputs=4" '
         f'"{output_path}" -y'
     )
     os.system(cmd)
