@@ -1,9 +1,9 @@
 import os
 
 def generate_final_beat(output_path):
-    print("🚀 Finalizing Arrangement: Intro -> Drop -> Bridge -> Outro...")
+    print("🚀 Finalizing Arrangement: Intro -> Drop -> Outro...")
     
-    # Clean Inputs
+    # Sound Definitions
     bass = 'sine=f=90:d=2,volume=5dB'
     snare = 'anoisesrc=d=0.1:c=white,volume=8dB,adelay=500|500'
     m1 = 'sine=f=440:d=0.2,afade=t=out:st=0.1:d=0.1,adelay=0|0,volume=10dB'
@@ -31,4 +31,5 @@ if __name__ == '__main__':
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     generate_final_beat(output_path)
     if os.path.exists(output_path):
+        print(f"--- Playing: HeartMuLa_V12.mp3 ---")
         os.system(f"afplay '{output_path}'")
